@@ -1,6 +1,7 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
 using CsvHelper.Configuration.Attributes;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -99,6 +100,34 @@ namespace VehicleRentalPlatform.Infrastructure.Data.Seeders
             _context.SaveChanges();
 
             _logger.LogInformation("Seeded {Count} telemetry entries from CSV.", telemetryData.Count());
+        }
+
+        public void SeedUsers()
+        {
+            if(_context.Users.Any()) return;
+
+            var hasher = new PasswordHasher<User>();
+
+            var admin = new User
+            {
+                Id = Guid.NewGuid(),
+                Email = "admin@vrp.com",
+                Role = "Admin"
+            };
+
+            admin.PasswordHash = hasher.HashPassword(admin, "admin123");
+
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                Email = "user@vrp.com",
+                Role = "User"
+            };
+
+            user.PasswordHash = hasher.HashPassword(user, "user123");
+
+            _context.Users.AddRange(admin, user);
+            _context.SaveChanges();
         }
 
         private class VehicleCsvModel

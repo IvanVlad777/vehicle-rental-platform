@@ -8,13 +8,18 @@ using VehicleRentalPlatform.Application.Mapper;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplicationServices();
+
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+builder.Services.AddJwtAuthentication(builder.Configuration);
+
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<ApplicationDatabaseContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection")));
+
+builder.Services.AddSwaggerWithJwt();
+
+builder.Services.AddDbContext<ApplicationDatabaseContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection")));
 
 builder.Logging.ClearProviders();
 builder.Logging.AddSimpleConsole(options =>
@@ -23,18 +28,28 @@ builder.Logging.AddSimpleConsole(options =>
     options.TimestampFormat = "[yyyy-MM-dd HH:mm:ss] ";
     options.IncludeScopes = false;
 });
+builder.Services.AddTransient<InitialDataSeeder>();
 
 var app = builder.Build();
-// Configure the HTTP request pipeline.
+
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    //app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        options.DocumentTitle = "Vehicle Rental Platform API";
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Vehicle Rental Platform");
+        options.DefaultModelsExpandDepth(-1);
+    });
 }
 
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDatabaseContext>();
+    dbContext.Database.Migrate();
+
     var seeder = scope.ServiceProvider.GetRequiredService<InitialDataSeeder>();
 
     string csvPath = Path.Combine(Directory.GetCurrentDirectory(), "Files", "vehicles.csv");
@@ -42,9 +57,13 @@ using (var scope = app.Services.CreateScope())
 
     var telemetryPath = Path.Combine(Directory.GetCurrentDirectory(), "Files", "telemetry.csv");
     seeder.SeedTelemetry(telemetryPath);
+
+    seeder.SeedUsers();
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

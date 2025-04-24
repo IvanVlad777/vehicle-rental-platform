@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VehicleRentalPlatform.Application.Dtos.Customer;
 using VehicleRentalPlatform.Application.Interfaces;
@@ -38,6 +39,7 @@ namespace VehicleRentalPlatform.API.Controllers
             return Ok(result);
         }
 
+        
         [HttpPost]
         public async Task<ActionResult<CustomerResponseDto>> Create([FromBody] CustomerCreateDto dto)
         {
@@ -47,6 +49,7 @@ namespace VehicleRentalPlatform.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(Guid id, [FromBody] CustomerUpdateDto dto)
         {
             await _service.UpdateAsync(id, dto);
@@ -54,6 +57,7 @@ namespace VehicleRentalPlatform.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(Guid id)
         {
             await _service.DeleteAsync(id);

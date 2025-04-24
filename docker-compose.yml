@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-lts
+    container_name: sqlserver
+    environment:
+      SA_PASSWORD: "NovaLozinka123!"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlvolume:/var/opt/mssql
+
+  api:
+    build:
+      context: .
+      dockerfile: VehicleRentalPlatform.API/Dockerfile
+    container_name: vehicleapi
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__SqlServerConnection=Server=db;Database=VehicleRentDb;User=sa;Password=NovaLozinka123;TrustServerCertificate=true;
+
+volumes:
+  sqlvolume:

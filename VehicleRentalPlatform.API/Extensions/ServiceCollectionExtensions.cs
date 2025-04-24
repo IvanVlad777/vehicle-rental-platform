@@ -1,6 +1,8 @@
 ﻿using VehicleRentalPlatform.Application.Interfaces;
 using VehicleRentalPlatform.Application.Services;
+using VehicleRentalPlatform.Infrastructure.Interfaces;
 using VehicleRentalPlatform.Infrastructure.Repositories;
+using VehicleRentalPlatform.Infrastructure.Services;
 
 namespace VehicleRentalPlatform.API.Extensions
 {
@@ -12,6 +14,7 @@ namespace VehicleRentalPlatform.API.Extensions
             services.AddScoped<ICustomerService, CustomerService>();
             services.AddScoped<IVehicleService, VehicleService>();
 
+            services.AddScoped<IAuthService, AuthService>();
 
             services.AddScoped<IVehicleRepository, EFVehicleRepository>();
             services.AddScoped<ICustomerRepository, EFCustomerRepository>();

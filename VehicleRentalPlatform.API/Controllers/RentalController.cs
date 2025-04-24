@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VehicleRentalPlatform.Application.Dtos.Rental;
 using VehicleRentalPlatform.Application.Interfaces;
@@ -65,6 +66,7 @@ namespace VehicleRentalPlatform.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(Guid id, [FromBody] RentalUpdateDto dto)
         {
             try
@@ -78,4 +80,4 @@ namespace VehicleRentalPlatform.API.Controllers
             }
         }
     }
-} 
+}
