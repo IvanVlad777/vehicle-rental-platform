@@ -23,6 +23,15 @@ namespace VehicleRentalPlatform.Infrastructure.Data
         {
             modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
 
+            modelBuilder.Entity<Vehicle>(entity =>
+            {
+                entity.Property(v => v.PricePerDayInEuro)
+                      .HasPrecision(10, 2);
+
+                entity.Property(v => v.PricePerKmInEuro)
+                      .HasPrecision(10, 2);
+            });
+
             base.OnModelCreating(modelBuilder);
         }
     }

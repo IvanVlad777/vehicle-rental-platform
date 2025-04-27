@@ -1,8 +1,6 @@
-version: "3.9"
-
 services:
   db:
-    image: mcr.microsoft.com/mssql/server:2022-lts
+    image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: sqlserver
     environment:
       SA_PASSWORD: "NovaLozinka123!"
@@ -11,19 +9,25 @@ services:
       - "1433:1433"
     volumes:
       - sqlvolume:/var/opt/mssql
-
   api:
     build:
       context: .
       dockerfile: VehicleRentalPlatform.API/Dockerfile
     container_name: vehicleapi
+    restart: unless-stopped
     ports:
       - "8080:80"
     depends_on:
       - db
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__SqlServerConnection=Server=db;Database=VehicleRentDb;User=sa;Password=NovaLozinka123;TrustServerCertificate=true;
+      - ConnectionStrings__SqlServerConnection=Server=db;Database=VehicleRentDb;User=sa;Password=NovaLozinka123!;TrustServerCertificate=true;
+    entrypoint: >
+      /bin/sh -c "
+      echo 'Waiting for MSSQL to be ready...' &&
+      sleep 20 &&
+      dotnet VehicleRentalPlatform.API.dll
+      "
 
 volumes:
   sqlvolume:
